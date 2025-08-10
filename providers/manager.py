@@ -3,7 +3,7 @@ import asyncio
 from typing import Any, Dict, Optional
 from loguru import logger
 
-from .providers import BaseProvider, OpenAIProvider, AnthropicProvider, GroqProvider, GoogleVertexProvider
+from .providers import BaseProvider, OpenAIProvider, AnthropicProvider, GroqProvider, GoogleVertexProvider, AIGatewayProvider
 from ..config.settings import EnergoConfig
 
 
@@ -15,6 +15,9 @@ class AIProviderManager:
     async def initialize(self) -> None:
         logger.info("Initializing AI providers ...")
         # Initialize based on available keys
+        # Priority: AI Gateway first (if configured), then direct providers
+        if self.config.ai_gateway_api_key:
+            self.providers["ai-gateway"] = AIGatewayProvider(self.config)
         if self.config.openai_api_key:
             self.providers["openai"] = OpenAIProvider(self.config)
         if self.config.anthropic_api_key:

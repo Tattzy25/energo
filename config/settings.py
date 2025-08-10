@@ -32,6 +32,24 @@ class EnergoConfig(BaseSettings):
     # Optional: Database URL (e.g., Neon)
     database_url: Optional[str] = Field(default=None, env="DATABASE_URL")
 
+    # Redis for MCP connection caching, rate limiting, session management
+    redis_url: Optional[str] = Field(default=None, env="REDIS_URL")
+    
+    # CORS allowed origins (comma-separated)
+    allowed_origins: str = Field(default="*", env="ALLOWED_ORIGINS")
+    
+    # Rate limiting
+    rate_limit_requests: int = Field(default=60, env="RATE_LIMIT_REQUESTS")  # requests per minute
+    rate_limit_window: int = Field(default=60, env="RATE_LIMIT_WINDOW")     # window in seconds
+
+    # MCP connection management
+    mcp_max_concurrency: int = Field(default=10, env="MCP_MAX_CONCURRENCY")
+    mcp_idle_timeout_seconds: int = Field(default=300, env="MCP_IDLE_TIMEOUT_SECONDS")
+    mcp_warm_pool_size: int = Field(default=20, env="MCP_WARM_POOL_SIZE")
+    mcp_enable_cache: bool = Field(default=True, env="MCP_ENABLE_CACHE")
+    mcp_cache_ttl_seconds: int = Field(default=300, env="MCP_CACHE_TTL_SECONDS")
+
     class Config:
-        env_file = ".env"
+        # Load from .env first (developer local), then fall back to .env.local if present (Vercel CLI default)
+        env_file = (".env", ".env.local")
         extra = "ignore"

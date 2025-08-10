@@ -1,5 +1,5 @@
 from .manager import AIProviderManager
-from .providers import BaseProvider, OpenAIProvider, AnthropicProvider, GroqProvider, GoogleVertexProvider
+from .providers import BaseProvider, OpenAIProvider, AnthropicProvider, GroqProvider, GoogleVertexProvider, AIGatewayProvider
 
 __all__ = [
     "AIProviderManager",
@@ -8,4 +8,5 @@ __all__ = [
     "AnthropicProvider",
     "GroqProvider",
     "GoogleVertexProvider",
+    "AIGatewayProvider",
 ]
