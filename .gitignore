@@ -30,3 +30,6 @@ MANIFEST
 .vercel/
 
 .DUMMY101/
+
+.vercel
+.env*.local
