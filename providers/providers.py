@@ -7,44 +7,7 @@ import os
 from ..config.settings import EnergoConfig
 
 
-class AIGatewayProvider(BaseProvider):
-    async def generate(self, prompt: str, **kwargs: Any) -> str:
-        """OpenAI-compatible client pointed at Vercel AI Gateway."""
-        from openai import AsyncOpenAI
-        if not self.config.ai_gateway_api_key or not self.config.ai_gateway_base_url:
-            raise RuntimeError("AI Gateway not configured")
-        client = AsyncOpenAI(api_key=self.config.ai_gateway_api_key, base_url=self.config.ai_gateway_base_url)
-        model = kwargs.get("model") or self.config.openai_model
-        # If no provider prefix given, default to openai/
-        if "/" not in model:
-            model = f"openai/{model}"
-        system = kwargs.get("system", "You are Energo, an enthusiastic and helpful assistant.")
-        response = await client.chat.completions.create(
-            model=model,
-            messages=[{"role": "system", "content": system}, {"role": "user", "content": prompt}],
-            temperature=kwargs.get("temperature", 0.3),
-        )
-        return response.choices[0].message.content
-
-    async def generate_stream(self, prompt: str, **kwargs: Any):
-        from openai import AsyncOpenAI
-        if not self.config.ai_gateway_api_key or not self.config.ai_gateway_base_url:
-            raise RuntimeError("AI Gateway not configured")
-        client = AsyncOpenAI(api_key=self.config.ai_gateway_api_key, base_url=self.config.ai_gateway_base_url)
-        model = kwargs.get("model") or self.config.openai_model
-        if "/" not in model:
-            model = f"openai/{model}"
-        system = kwargs.get("system", "You are Energo, an enthusiastic and helpful assistant.")
-        stream = await client.chat.completions.create(
-            model=model,
-            messages=[{"role": "system", "content": system}, {"role": "user", "content": prompt}],
-            temperature=kwargs.get("temperature", 0.3),
-            stream=True,
-        )
-        async for event in stream:
-            delta = event.choices[0].delta.content if getattr(event.choices[0], "delta", None) else None
-            if delta:
-                yield delta
+# Moved AIGatewayProvider below BaseProvider definition to avoid NameError
 
 
 class BaseProvider(abc.ABC):
@@ -129,6 +92,46 @@ class GroqProvider(BaseProvider):
         from groq import AsyncGroq
         client = AsyncGroq(api_key=self.config.groq_api_key)
         model = kwargs.get("model", self.config.groq_model)
+        system = kwargs.get("system", "You are Energo, an enthusiastic and helpful assistant.")
+        stream = await client.chat.completions.create(
+            model=model,
+            messages=[{"role": "system", "content": system}, {"role": "user", "content": prompt}],
+            temperature=kwargs.get("temperature", 0.3),
+            stream=True,
+        )
+        async for event in stream:
+            delta = event.choices[0].delta.content if getattr(event.choices[0], "delta", None) else None
+            if delta:
+                yield delta
+
+
+class AIGatewayProvider(BaseProvider):
+    async def generate(self, prompt: str, **kwargs: Any) -> str:
+        """OpenAI-compatible client pointed at Vercel AI Gateway."""
+        from openai import AsyncOpenAI
+        if not self.config.ai_gateway_api_key or not self.config.ai_gateway_base_url:
+            raise RuntimeError("AI Gateway not configured")
+        client = AsyncOpenAI(api_key=self.config.ai_gateway_api_key, base_url=self.config.ai_gateway_base_url)
+        model = kwargs.get("model") or self.config.openai_model
+        # If no provider prefix given, default to openai/
+        if "/" not in model:
+            model = f"openai/{model}"
+        system = kwargs.get("system", "You are Energo, an enthusiastic and helpful assistant.")
+        response = await client.chat.completions.create(
+            model=model,
+            messages=[{"role": "system", "content": system}, {"role": "user", "content": prompt}],
+            temperature=kwargs.get("temperature", 0.3),
+        )
+        return response.choices[0].message.content
+
+    async def generate_stream(self, prompt: str, **kwargs: Any):
+        from openai import AsyncOpenAI
+        if not self.config.ai_gateway_api_key or not self.config.ai_gateway_base_url:
+            raise RuntimeError("AI Gateway not configured")
+        client = AsyncOpenAI(api_key=self.config.ai_gateway_api_key, base_url=self.config.ai_gateway_base_url)
+        model = kwargs.get("model") or self.config.openai_model
+        if "/" not in model:
+            model = f"openai/{model}"
         system = kwargs.get("system", "You are Energo, an enthusiastic and helpful assistant.")
         stream = await client.chat.completions.create(
             model=model,

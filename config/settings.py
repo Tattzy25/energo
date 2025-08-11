@@ -17,7 +17,7 @@ class EnergoConfig(BaseSettings):
 
     # Vercel AI Gateway
     ai_gateway_api_key: Optional[str] = Field(default=None, env="AI_GATEWAY_API_KEY")
-    ai_gateway_base_url: Optional[str] = Field(default="https://ai-gateway.vercel.sh/v1", env="AI_GATEWAY_BASE_URL")
+    ai_gateway_base_url: Optional[str] = Field(default="https://api.bridgit-ai.com/v1", env="AI_GATEWAY_BASE_URL")
 
     google_project: Optional[str] = Field(default=None, env="GOOGLE_CLOUD_PROJECT")
     google_location: str = Field(default="us-central1")
