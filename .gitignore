@@ -33,3 +33,5 @@ MANIFEST
 
 .vercel
 .env*.local
+
+.env*.local
